@@ -9,38 +9,27 @@
   ## Check that state and outcome are valid
   ##check the validity of state
   allStates <- datatable$State
-  if (!state %in% unique(allStates)) {
-    stop('invalid state')
-  }
+  if (!state %in% unique(allStates)) {stop('invalid state')}
   
   ##check the validity of outcome
-  if (!outcome %in% c("heart attack", "heart failure", "pneumonia")) {
-    stop('invalid outcome')
-  }
+  if (!outcome %in% c("heart attack", "heart failure", "pneumonia")) {stop('invalid outcome')}
   
   ##check the validity of num
-  rankchar <- NULL
-  ranknum <- NULL
   ##check <- all.equal(num, as.character(num))
-  if (num %in% nummatch) {
-    rankchar <- num
-  }
-  else {
-    ranknum <- as.integer(num)
-  }
+  if (!num %in% nummatch && !num%%1==0) {stop("Seems like a faulty argument!!")}
   
   ##fetch state specific data
-  temp <- datatable[which(datatable$State==state),]
+  temp <- datatable[datatable$State==state & datatable[as.numeric(keymatch[[outcome]])] != "Not Available",]
   
   ## Return hospital name in that state with the given rank
-  truetemp <- temp[complete.cases(temp),]
-  if (rankchar == "best") {
-    bestRow <- truetemp$Hospital.Name[truetemp[,as.numeric(keymatch[[outcome]])] == min(truetemp[,as.numeric(keymatch[[outcome]])])]
-  } else if (rankchar == "worst") {
-    bestRow <- truetemp$Hospital.Name[truetemp[,as.numeric(keymatch[[outcome]])] == max(truetemp[,as.numeric(keymatch[[outcome]])])]
+  ##truetemp <- temp[complete.cases(temp[,11]),]
+  if (num == "best") {
+    bestRow <- temp$Hospital.Name[temp[,as.numeric(keymatch[[outcome]])] == min(temp[,as.numeric(keymatch[[outcome]])])]
+  } else if (num == "worst") {
+    bestRow <- temp$Hospital.Name[temp[,as.numeric(keymatch[[outcome]])] == max(temp[,as.numeric(keymatch[[outcome]])])]
   } else {
-    truetemporder <- truetemp[order(truetemp[,as.numeric(keymatch[[outcome]])]),]
-    bestRow <- truetemporder[ranknum,2]
+    temporder <- temp[order(temp[,as.numeric(keymatch[[outcome]])], decreasing = FALSE),]
+    bestRow <- temporder[as.integer(num),2]
   }
   ## 30-day death rate
   if (length(bestRow) > 1) {

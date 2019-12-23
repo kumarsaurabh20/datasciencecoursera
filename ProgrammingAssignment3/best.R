@@ -15,11 +15,9 @@ best <- function(state, outcome) {
           stop('invalid outcome')
         }
         
-        ##fetch state specific data
-        temp <- datatable[which(datatable$State==state),]
-        ##remove the missing values
-        truetemp <- temp[complete.cases(temp),]
-        bestRow <- truetemp$Hospital.Name[truetemp[,as.numeric(keymatch[[outcome]])] == min(truetemp[,as.numeric(keymatch[[outcome]])])]
+        ##fetch state specific data & remove the missing values
+        temp <- datatable[datatable$State==state & datatable[as.numeric(keymatch[[outcome]])] != "Not Available",]
+        bestRow <- temp$Hospital.Name[temp[,as.numeric(keymatch[[outcome]])] == min(temp[,as.numeric(keymatch[[outcome]])])]
         
         if (length(bestRow) > 1) {
           print(sort(bestRow)[1])
